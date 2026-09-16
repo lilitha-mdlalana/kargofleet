@@ -1,0 +1,10 @@
+openapi: 3.0.3
+info:
+  title: KargoFleet API
+  version: 0.1.0
+  description: Driver mobile app + fleet operations API for the KargoFleet demo.
+servers:
+  - url: http://localhost:3000
+paths: {}
+components:
+  schemas: {}
