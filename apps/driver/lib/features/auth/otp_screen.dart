@@ -49,6 +49,8 @@ class _OtpScreenState extends State<OtpScreen> {
       );
     } on AuthApiException catch (e) {
       setState(() => _error = e.message);
+    } catch (_) {
+      setState(() => _error = 'Could not reach the server');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

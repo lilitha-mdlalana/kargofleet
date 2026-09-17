@@ -1,0 +1,96 @@
+# KargoFleet
+
+KargoFleet is a small educational fleet-management demo: a Flutter driver app backed by an
+Express.js/TypeScript API, built to learn Flutter, API architecture, authentication, PostgreSQL,
+Docker, and open-source mapping. It is not a production fleet-management platform.
+
+## Repository structure
+
+```
+kargofleet/
+├── apps/
+│   ├── driver/       # Flutter mobile application
+│   └── api/          # Express.js + TypeScript API
+├── packages/
+│   └── api-contract/ # OpenAPI specification
+├── docker-compose.yml
+└── README.md
+```
+
+## Prerequisites
+
+- Node.js 20+
+- Flutter SDK
+- Docker (for PostgreSQL)
+
+## Running the auth demo end to end
+
+### 1. Start PostgreSQL
+
+```bash
+docker compose up -d
+```
+
+### 2. Set up and run the API
+
+```bash
+cd apps/api
+npm install
+cp .env.example .env   # PORT, DATABASE_URL, JWT_SECRET
+npx prisma migrate dev
+npx prisma db seed
+npm run dev
+```
+
+The API listens on `http://localhost:3000` by default (see `apps/api/.env.example`).
+
+Seeding creates a demo driver you can log in as:
+
+- Phone: `+27821234567`
+- Driver: Thando Mokoena (license C1)
+- Vehicle: Toyota Quantum, registration CA 123-456
+- Trip: Cape Town → Stellenbosch (status: scheduled)
+
+There is no external SMS provider in development — the OTP code for signup/login is printed to
+the API server's console log instead of being sent by SMS.
+
+### 3. Run the Flutter driver app
+
+```bash
+cd apps/driver
+flutter run
+```
+
+The app's API base URL defaults to `http://10.0.2.2:3000`, which resolves to your host machine's
+`localhost` from the Android emulator. For iOS simulator, web, or a physical device, point it at
+your machine's reachable address instead, e.g.:
+
+```bash
+flutter run --dart-define=API_BASE_URL=http://localhost:3000
+```
+
+### Demo flow
+
+Sign up or log in with the seeded phone number `+27821234567`, check the API server logs for the
+OTP code, and enter it on the verification screen.
+
+## Running tests
+
+API tests (Vitest; loads `apps/api/.env` automatically):
+
+```bash
+cd apps/api
+npx vitest run
+```
+
+Flutter tests:
+
+```bash
+cd apps/driver
+flutter test
+```
+
+## API contract
+
+The OpenAPI specification for the implemented endpoints lives at
+`packages/api-contract/openapi.yaml`.

@@ -5,6 +5,151 @@ info:
   description: Driver mobile app + fleet operations API for the KargoFleet demo.
 servers:
   - url: http://localhost:3000
-paths: {}
+paths:
+  /auth/signup:
+    post:
+      summary: Register a new driver and send an OTP
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignupRequest'
+      responses:
+        '202':
+          description: OTP generated and logged server-side (dev SMS-free flow)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Invalid request body, or phone already registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/login:
+    post:
+      summary: Start login for an existing driver by sending an OTP
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '202':
+          description: OTP generated and logged server-side (dev SMS-free flow)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: No account with that phone number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/verify:
+    post:
+      summary: Verify an OTP code and receive a JWT
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyRequest'
+      responses:
+        '200':
+          description: OTP verified, returns an auth token and the user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyResponse'
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid or expired code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: No account with that phone number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 components:
-  schemas: {}
+  schemas:
+    SignupRequest:
+      type: object
+      required: [name, phone]
+      properties:
+        name:
+          type: string
+          example: Thando Mokoena
+        phone:
+          type: string
+          example: '+27821234567'
+    LoginRequest:
+      type: object
+      required: [phone]
+      properties:
+        phone:
+          type: string
+          example: '+27821234567'
+    VerifyRequest:
+      type: object
+      required: [phone, code]
+      properties:
+        phone:
+          type: string
+          example: '+27821234567'
+        code:
+          type: string
+          description: 6-digit OTP code, logged server-side in development
+          example: '123456'
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: OTP sent
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: No account with that phone number
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        phone:
+          type: string
+    VerifyResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: JWT to use as a Bearer token on authenticated requests
+        user:
+          $ref: '#/components/schemas/User'
