@@ -1,8 +1,37 @@
-import 'package:flutter/material.dart';
-import 'package:fleeter/core/theme/app_theme.dart';
+import 'dart:async';
 
-class SplashScreen extends StatelessWidget {
+import 'package:fleeter/core/theme/app_theme.dart';
+import 'package:fleeter/features/auth/login_screen.dart';
+import 'package:flutter/material.dart';
+
+class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  Timer? _navigationTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _navigationTimer = Timer(const Duration(milliseconds: 1200), _goToLogin);
+  }
+
+  void _goToLogin() {
+    if (!mounted) return;
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
+    );
+  }
+
+  @override
+  void dispose() {
+    _navigationTimer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
