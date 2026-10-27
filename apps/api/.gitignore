@@ -1,6 +1,4 @@
-node_modules/
-dist/
+bin/
+obj/
+*.user
 .env
-!.env.example
-
-/src/generated/prisma
