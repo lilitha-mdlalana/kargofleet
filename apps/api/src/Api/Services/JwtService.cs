@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 
@@ -7,19 +8,27 @@ namespace Api.Services;
 
 public class JwtService : IJwtService
 {
-    private readonly string _secret;
+    private readonly byte[] _keyBytes;
 
     public JwtService(IConfiguration config)
     {
-        _secret = Environment.GetEnvironmentVariable("JWT_SECRET")
+        _keyBytes = DeriveKeyBytes(ResolveSecret(config));
+    }
+
+    public static string ResolveSecret(IConfiguration config) =>
+        Environment.GetEnvironmentVariable("JWT_SECRET")
             ?? config["Jwt:Secret"]
             ?? "dev-secret-change-me";
-    }
+
+    // HS256 requires a key of at least 256 bits; hash the configured secret
+    // down to a fixed 32-byte key so any secret length works.
+    public static byte[] DeriveKeyBytes(string secret) =>
+        SHA256.HashData(Encoding.UTF8.GetBytes(secret));
 
     public string Sign(Guid userId)
     {
         var handler = new JwtSecurityTokenHandler();
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secret));
+        var key = new SymmetricSecurityKey(_keyBytes);
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
