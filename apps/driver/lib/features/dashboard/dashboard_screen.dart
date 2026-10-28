@@ -52,7 +52,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       padding: const EdgeInsets.all(16),
                       child: data.vehicle == null
                           ? const Text('No vehicle assigned yet')
-                          : Text('${data.vehicle!.name} • ${data.vehicle!.registration}'),
+                          : Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  data.vehicle!.name,
+                                  style: Theme.of(context).textTheme.titleMedium,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  data.vehicle!.registration,
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ],
+                            ),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -61,7 +74,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       padding: const EdgeInsets.all(16),
                       child: data.trip == null
                           ? const Text('No trip scheduled')
-                          : Text('${data.trip!.origin} → ${data.trip!.destination} (${data.trip!.status})'),
+                          : Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${data.trip!.origin} → ${data.trip!.destination}',
+                                  style: Theme.of(context).textTheme.titleMedium,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  data.trip!.status,
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ],
+                            ),
                     ),
                   ),
                 ],
