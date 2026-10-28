@@ -120,6 +120,8 @@ public class AuthEndpointsTests : IClassFixture<ApiFactory>
         var response = await _client.GetAsync("/profile");
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        var body = await response.Content.ReadFromJsonAsync<ErrorResponse>();
+        Assert.False(string.IsNullOrWhiteSpace(body!.Message));
     }
 
     [Fact]

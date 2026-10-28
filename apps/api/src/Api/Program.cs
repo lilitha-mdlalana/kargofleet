@@ -26,6 +26,7 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 var jwtKeyBytes = JwtService.DeriveKeyBytes(JwtService.ResolveSecret(builder.Configuration));
+var camelCaseJson = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opts =>
@@ -45,7 +46,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 ctx.HandleResponse();
                 ctx.Response.StatusCode = 401;
                 ctx.Response.ContentType = "application/json";
-                var body = JsonSerializer.Serialize(new ErrorResponse("Missing or invalid authorization header"));
+                var body = JsonSerializer.Serialize(new ErrorResponse("Missing or invalid authorization header"), camelCaseJson);
                 return ctx.Response.WriteAsync(body);
             },
         };
