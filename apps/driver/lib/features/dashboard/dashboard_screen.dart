@@ -1,5 +1,6 @@
 import 'package:fleeter/features/auth/data/auth_session.dart';
 import 'package:fleeter/features/dashboard/data/dashboard_api.dart';
+import 'package:fleeter/features/map/map_screen.dart';
 import 'package:flutter/material.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -69,27 +70,38 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: data.trip == null
-                          ? const Text('No trip scheduled')
-                          : Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '${data.trip!.origin} → ${data.trip!.destination}',
-                                  style: Theme.of(context).textTheme.titleMedium,
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  data.trip!.status,
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                ),
-                              ],
+                  data.trip == null
+                      ? const Card(
+                          child: Padding(
+                            padding: EdgeInsets.all(16),
+                            child: Text('No trip scheduled'),
+                          ),
+                        )
+                      : Card(
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(16),
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(builder: (_) => MapScreen(trip: data.trip!)),
                             ),
-                    ),
-                  ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '${data.trip!.origin} → ${data.trip!.destination}',
+                                    style: Theme.of(context).textTheme.titleMedium,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    data.trip!.status,
+                                    style: Theme.of(context).textTheme.bodyMedium,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
                 ],
               ),
             );

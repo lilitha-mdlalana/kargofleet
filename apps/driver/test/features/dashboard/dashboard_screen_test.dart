@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:fleeter/features/auth/data/auth_session.dart';
 import 'package:fleeter/features/dashboard/dashboard_screen.dart';
 import 'package:fleeter/features/dashboard/data/dashboard_api.dart';
+import 'package:fleeter/features/map/map_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -52,5 +53,27 @@ void main() {
 
     expect(find.text('No vehicle assigned yet'), findsOneWidget);
     expect(find.text('No trip scheduled'), findsOneWidget);
+  });
+
+  testWidgets('tapping the trip card navigates to MapScreen when a trip exists', (tester) async {
+    AuthSession.instance.token = 'fake-token';
+    final client = MockClient((request) async => http.Response(
+          jsonEncode({
+            'driver': {'id': '1', 'name': 'Jane Doe', 'phone': '+27821234567', 'license': 'C1'},
+            'vehicle': {'id': '2', 'name': 'Toyota Quantum', 'registration': 'CA 123-456'},
+            'trip': {'id': '3', 'origin': 'Cape Town', 'destination': 'Stellenbosch', 'status': 'scheduled'},
+          }),
+          200,
+        ));
+
+    await tester.pumpWidget(MaterialApp(
+      home: DashboardScreen(dashboardApi: DashboardApi(client: client)),
+    ));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.textContaining('Cape Town'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(MapScreen), findsOneWidget);
   });
 }
