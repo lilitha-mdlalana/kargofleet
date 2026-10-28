@@ -36,6 +36,38 @@ class AppTheme {
           borderRadius: BorderRadius.circular(16),
         ),
       ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+          minimumSize: const Size.fromHeight(56),
+          shape: const StadiumBorder(),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: AppColors.surface,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+        ),
+        labelStyle: const TextStyle(color: AppColors.textSecondary),
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: AppColors.background,
+        foregroundColor: AppColors.textPrimary,
+        elevation: 0,
+      ),
     );
   }
 }
