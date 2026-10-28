@@ -1,7 +1,7 @@
 You are helping me build KargoFleet, a small educational fleet-management application.
 
 IMPORTANT:
-This is NOT intended to be a production fleet-management platform. It is a deliberately scoped demo project whose primary purpose is to help me learn Flutter, Express.js/TypeScript, PostgreSQL, API architecture, authentication, testing, Docker, and open-source mapping.
+This is NOT intended to be a production fleet-management platform. It is a deliberately scoped demo project whose primary purpose is to help me learn Flutter, C#/.NET, PostgreSQL, API architecture, authentication, testing, Docker, and open-source mapping.
 
 I want the project structured as a monorepo.
 
@@ -20,7 +20,7 @@ Use this structure:
 kargofleet/
 ├── apps/
 │   ├── driver/       # Flutter mobile application
-│   └── api/          # Express.js + TypeScript API
+│   └── api/          # ASP.NET Core (C#) Web API
 ├── packages/
 │   └── api-contract/ # OpenAPI specification
 ├── docker-compose.yml
@@ -83,22 +83,22 @@ This is the primary vertical slice of the application.
 
 Use:
 
-- Node.js
-- Express.js
-- TypeScript
+- C# / ASP.NET Core (.NET 8 LTS)
 - PostgreSQL
-- Prisma ORM
+- Entity Framework Core (Npgsql provider)
 
 Structure the API approximately as:
 
-apps/api/src/
-├── config/
-├── controllers/
-├── middleware/
-├── routes/
-├── services/
-├── db/
-└── server.ts
+apps/api/src/Api/
+├── Controllers/
+├── Services/
+├── Data/
+│   ├── Entities/
+│   ├── Seed/
+│   └── Migrations/
+├── DTOs/
+├── Exceptions/
+└── Program.cs
 
 Keep controllers thin and put business logic in services.
 
@@ -122,7 +122,7 @@ Do not build a complicated authentication system.
 
 ## Database
 
-Use PostgreSQL with Prisma.
+Use PostgreSQL with Entity Framework Core.
 
 Initial models should include approximately:
 
@@ -283,7 +283,7 @@ Document setup instructions in README.md.
 
 ## Code quality
 
-Use TypeScript strict mode.
+Use C# nullable reference types (`<Nullable>enable</Nullable>`).
 
 Use linting and formatting.
 
@@ -303,8 +303,8 @@ First establish:
 
 1. Monorepo structure
 2. Flutter app
-3. Express API
-4. PostgreSQL + Prisma
+3. ASP.NET Core API
+4. PostgreSQL + Entity Framework Core
 5. Database schema
 6. Seed data
 7. Authentication

@@ -1,7 +1,7 @@
 # KargoFleet
 
 KargoFleet is a small educational fleet-management demo: a Flutter driver app backed by an
-Express.js/TypeScript API, built to learn Flutter, API architecture, authentication, PostgreSQL,
+ASP.NET Core (C#) API, built to learn Flutter, API architecture, authentication, PostgreSQL,
 Docker, and open-source mapping. It is not a production fleet-management platform.
 
 ## Repository structure
@@ -10,7 +10,7 @@ Docker, and open-source mapping. It is not a production fleet-management platfor
 kargofleet/
 ├── apps/
 │   ├── driver/       # Flutter mobile application
-│   └── api/          # Express.js + TypeScript API
+│   └── api/          # ASP.NET Core (C#) Web API
 ├── packages/
 │   └── api-contract/ # OpenAPI specification
 ├── docker-compose.yml
@@ -19,7 +19,7 @@ kargofleet/
 
 ## Prerequisites
 
-- Node.js 20+
+- .NET 8 SDK
 - Flutter SDK
 - Docker (for PostgreSQL)
 
@@ -34,15 +34,15 @@ docker compose up -d
 ### 2. Set up and run the API
 
 ```bash
-cd apps/api
-npm install
-cp .env.example .env   # PORT, DATABASE_URL, JWT_SECRET
-npx prisma migrate dev
-npx prisma db seed
-npm run dev
+cd apps/api/src/Api
+dotnet restore
+dotnet run
 ```
 
-The API listens on `http://localhost:3000` by default (see `apps/api/.env.example`).
+Migrations and demo-data seeding run automatically on startup in the Development environment.
+The API listens on `http://localhost:3000` (see `apps/api/.env.example` for the env vars it
+reads: `JWT_SECRET`, `ConnectionStrings__Default`, `ASPNETCORE_URLS`). For a faster edit/run
+loop, use `dotnet watch run` instead of `dotnet run`.
 
 Seeding creates a demo driver you can log in as:
 
@@ -76,11 +76,12 @@ OTP code, and enter it on the verification screen.
 
 ## Running tests
 
-API tests (Vitest; loads `apps/api/.env` automatically):
+API tests (xUnit: unit tests plus integration tests against a throwaway Postgres container via
+Testcontainers, so Docker must be running):
 
 ```bash
 cd apps/api
-npx vitest run
+dotnet test
 ```
 
 Flutter tests:
