@@ -93,7 +93,37 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /driver/dashboard:
+    get:
+      summary: Get the authenticated driver's dashboard (driver, vehicle, current/next trip)
+      tags: [Driver]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Driver dashboard data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardResponse'
+        '401':
+          description: Missing or invalid authorization header
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Authenticated user has no driver profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     SignupRequest:
       type: object
@@ -153,3 +183,51 @@ components:
           description: JWT to use as a Bearer token on authenticated requests
         user:
           $ref: '#/components/schemas/User'
+    DashboardDriver:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        phone:
+          type: string
+        license:
+          type: string
+          nullable: true
+    DashboardVehicle:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        registration:
+          type: string
+    DashboardTrip:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        origin:
+          type: string
+        destination:
+          type: string
+        status:
+          type: string
+    DashboardResponse:
+      type: object
+      properties:
+        driver:
+          $ref: '#/components/schemas/DashboardDriver'
+        vehicle:
+          allOf:
+            - $ref: '#/components/schemas/DashboardVehicle'
+          nullable: true
+        trip:
+          allOf:
+            - $ref: '#/components/schemas/DashboardTrip'
+          nullable: true

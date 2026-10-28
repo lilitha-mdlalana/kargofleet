@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using Api.Data;
 using Api.DTOs.Auth;
+using Api.DTOs.Driver;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -27,6 +28,15 @@ public class AuthEndpointsTests : IClassFixture<ApiFactory>
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var user = await db.Users.FirstOrDefaultAsync(u => u.Phone == phone);
         return user?.OtpCode;
+    }
+
+    private async Task<string> SignupAndVerifyAsync(string phone, string name = "Jane Doe")
+    {
+        await _client.PostAsJsonAsync("/auth/signup", new SignupRequest(name, phone));
+        var code = await GetLoggedOtpAsync(phone);
+        var response = await _client.PostAsJsonAsync("/auth/verify", new VerifyRequest(phone, code));
+        var body = await response.Content.ReadFromJsonAsync<VerifyResponse>();
+        return body!.Token;
     }
 
     [Fact]
@@ -148,16 +158,62 @@ public class AuthEndpointsTests : IClassFixture<ApiFactory>
     [Fact]
     public async Task Profile_ValidToken_Returns501()
     {
-        var phone = NewPhone();
-        await _client.PostAsJsonAsync("/auth/signup", new SignupRequest("Jane Doe", phone));
-        var code = await GetLoggedOtpAsync(phone);
-        var verifyResponse = await _client.PostAsJsonAsync("/auth/verify", new VerifyRequest(phone, code));
-        var verifyBody = await verifyResponse.Content.ReadFromJsonAsync<VerifyResponse>();
+        var token = await SignupAndVerifyAsync(NewPhone());
 
         using var request = new HttpRequestMessage(HttpMethod.Get, "/profile");
-        request.Headers.Add("Authorization", $"Bearer {verifyBody!.Token}");
+        request.Headers.Add("Authorization", $"Bearer {token}");
         var response = await _client.SendAsync(request);
 
         Assert.Equal(HttpStatusCode.NotImplemented, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Dashboard_MissingToken_Returns401()
+    {
+        var response = await _client.GetAsync("/driver/dashboard");
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Dashboard_FreshSignup_Returns200WithDriverInfoAndNullVehicleAndTrip()
+    {
+        var phone = NewPhone();
+        var token = await SignupAndVerifyAsync(phone, "Fresh Driver");
+
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/driver/dashboard");
+        request.Headers.Add("Authorization", $"Bearer {token}");
+        var response = await _client.SendAsync(request);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var body = await response.Content.ReadFromJsonAsync<DashboardResponse>();
+        Assert.Equal("Fresh Driver", body!.Driver.Name);
+        Assert.Equal(phone, body.Driver.Phone);
+        Assert.Null(body.Vehicle);
+        Assert.Null(body.Trip);
+    }
+
+    [Fact]
+    public async Task Dashboard_SeededDemoDriver_Returns200WithVehicleAndTrip()
+    {
+        const string seededPhone = "+27821234567";
+        await _client.PostAsJsonAsync("/auth/login", new LoginRequest(seededPhone));
+        var code = await GetLoggedOtpAsync(seededPhone);
+        var verifyResponse = await _client.PostAsJsonAsync("/auth/verify", new VerifyRequest(seededPhone, code));
+        var verifyBody = await verifyResponse.Content.ReadFromJsonAsync<VerifyResponse>();
+
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/driver/dashboard");
+        request.Headers.Add("Authorization", $"Bearer {verifyBody!.Token}");
+        var response = await _client.SendAsync(request);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var body = await response.Content.ReadFromJsonAsync<DashboardResponse>();
+        Assert.NotNull(body!.Vehicle);
+        Assert.Equal("Toyota Quantum", body.Vehicle!.Name);
+        Assert.Equal("CA 123-456", body.Vehicle.Registration);
+        Assert.NotNull(body.Trip);
+        Assert.Equal("Cape Town", body.Trip!.Origin);
+        Assert.Equal("Stellenbosch", body.Trip.Destination);
+        Assert.Equal("scheduled", body.Trip.Status);
     }
 }
