@@ -35,14 +35,16 @@ docker compose up -d
 
 ```bash
 cd apps/api/src/Api
+cp ../../.env.example .env   # JWT_SECRET, ConnectionStrings__Default, ASPNETCORE_URLS
 dotnet restore
 dotnet run
 ```
 
-Migrations and demo-data seeding run automatically on startup in the Development environment.
-The API listens on `http://localhost:3000` (see `apps/api/.env.example` for the env vars it
-reads: `JWT_SECRET`, `ConnectionStrings__Default`, `ASPNETCORE_URLS`). For a faster edit/run
-loop, use `dotnet watch run` instead of `dotnet run`.
+The API auto-loads `.env` from its working directory on startup (if present) and applies it
+before reading configuration, so editing `.env` is enough — no need to export variables into
+your shell. Migrations and demo-data seeding run automatically on startup in the Development
+environment. The API listens on `http://localhost:3000`. For a faster edit/run loop, use
+`dotnet watch run` instead of `dotnet run`.
 
 Seeding creates a demo driver you can log in as:
 

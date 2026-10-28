@@ -10,9 +10,9 @@ public class JwtService : IJwtService
 {
     private readonly byte[] _keyBytes;
 
-    public JwtService(IConfiguration config)
+    public JwtService(byte[] keyBytes)
     {
-        _keyBytes = DeriveKeyBytes(ResolveSecret(config));
+        _keyBytes = keyBytes;
     }
 
     public static string ResolveSecret(IConfiguration config) =>

@@ -135,6 +135,17 @@ public class AuthEndpointsTests : IClassFixture<ApiFactory>
     }
 
     [Fact]
+    public async Task Health_CrossOriginRequest_AllowsAnyOrigin()
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/health");
+        request.Headers.Add("Origin", "http://example.com");
+
+        var response = await _client.SendAsync(request);
+
+        Assert.True(response.Headers.Contains("Access-Control-Allow-Origin"));
+    }
+
+    [Fact]
     public async Task Profile_ValidToken_Returns501()
     {
         var phone = NewPhone();
