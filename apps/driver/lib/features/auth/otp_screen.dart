@@ -1,6 +1,6 @@
-import 'package:fleeter/core/theme/app_theme.dart';
 import 'package:fleeter/features/auth/data/auth_api.dart';
 import 'package:fleeter/features/auth/data/auth_session.dart';
+import 'package:fleeter/features/dashboard/dashboard_screen.dart';
 import 'package:flutter/material.dart';
 
 enum OtpMode { login, signup }
@@ -44,7 +44,7 @@ class _OtpScreenState extends State<OtpScreen> {
       AuthSession.instance.user = result.user;
       if (!mounted) return;
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => _VerifiedScreen(name: result.user.name)),
+        MaterialPageRoute(builder: (_) => const DashboardScreen()),
         (route) => false,
       );
     } on AuthApiException catch (e) {
@@ -105,28 +105,6 @@ class _OtpScreenState extends State<OtpScreen> {
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _VerifiedScreen extends StatelessWidget {
-  const _VerifiedScreen({required this.name});
-
-  final String name;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.check_circle, color: AppColors.primary, size: 64),
-            const SizedBox(height: 16),
-            Text("You're in, $name", style: Theme.of(context).textTheme.headlineMedium),
-          ],
         ),
       ),
     );
