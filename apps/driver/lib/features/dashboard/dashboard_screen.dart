@@ -4,6 +4,7 @@ import 'package:fleeter/core/theme/app_theme.dart';
 import 'package:fleeter/features/auth/data/auth_session.dart';
 import 'package:fleeter/features/dashboard/data/dashboard_api.dart';
 import 'package:fleeter/features/map/map_screen.dart';
+import 'package:fleeter/features/vehicle/vehicle_screen.dart';
 import 'package:flutter/material.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -219,19 +220,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                   const SizedBox(height: 24),
                   Row(
-                    children: const [
+                    children: [
                       Expanded(
                         child: _PlaceholderNavCard(
                           icon: Icons.local_shipping_outlined,
                           label: 'Vehicle Detail',
+                          onTap: data.vehicle == null
+                              ? null
+                              : () => Navigator.of(context).push(
+                                    MaterialPageRoute(builder: (_) => const VehicleScreen()),
+                                  ),
                         ),
                       ),
-                      SizedBox(width: 12),
-                      Expanded(
+                      const SizedBox(width: 12),
+                      const Expanded(
                         child: _PlaceholderNavCard(icon: Icons.badge_outlined, label: 'Driver Detail'),
                       ),
-                      SizedBox(width: 12),
-                      Expanded(
+                      const SizedBox(width: 12),
+                      const Expanded(
                         child: _PlaceholderNavCard(icon: Icons.build_outlined, label: 'Transport Tool'),
                       ),
                     ],
@@ -247,22 +253,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
 }
 
 class _PlaceholderNavCard extends StatelessWidget {
-  const _PlaceholderNavCard({required this.icon, required this.label});
+  const _PlaceholderNavCard({required this.icon, required this.label, this.onTap});
 
   final IconData icon;
   final String label;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        child: Column(
-          children: [
-            Icon(icon, color: AppColors.textSecondary),
-            const SizedBox(height: 8),
-            Text(label, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium),
-          ],
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Column(
+            children: [
+              Icon(icon, color: AppColors.textSecondary),
+              const SizedBox(height: 8),
+              Text(label, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium),
+            ],
+          ),
         ),
       ),
     );

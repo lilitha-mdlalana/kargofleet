@@ -4,6 +4,7 @@ import 'package:fleeter/features/auth/data/auth_session.dart';
 import 'package:fleeter/features/dashboard/dashboard_screen.dart';
 import 'package:fleeter/features/dashboard/data/dashboard_api.dart';
 import 'package:fleeter/features/map/map_screen.dart';
+import 'package:fleeter/features/vehicle/vehicle_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -187,7 +188,7 @@ void main() {
     expect(find.text('Check Out'), findsNothing);
   });
 
-  testWidgets('placeholder nav cards render and are inert', (tester) async {
+  testWidgets('Driver Detail and Transport Tool placeholder cards are inert', (tester) async {
     AuthSession.instance.token = 'fake-token';
     final client = MockClient((request) async => http.Response(
           jsonEncode({
@@ -207,9 +208,57 @@ void main() {
     expect(find.text('Driver Detail'), findsOneWidget);
     expect(find.text('Transport Tool'), findsOneWidget);
 
+    await tester.tap(find.text('Driver Detail'));
+    await tester.pumpAndSettle();
+    expect(find.byType(DashboardScreen), findsOneWidget);
+
+    await tester.tap(find.text('Transport Tool'));
+    await tester.pumpAndSettle();
+    expect(find.byType(DashboardScreen), findsOneWidget);
+  });
+
+  testWidgets('Vehicle Detail card is not tappable when no vehicle assigned', (tester) async {
+    AuthSession.instance.token = 'fake-token';
+    final client = MockClient((request) async => http.Response(
+          jsonEncode({
+            'driver': {'id': '1', 'name': 'Jane Doe', 'phone': '+27821234567'},
+            'vehicle': null,
+            'trip': null,
+          }),
+          200,
+        ));
+
+    await tester.pumpWidget(MaterialApp(
+      home: DashboardScreen(dashboardApi: DashboardApi(client: client)),
+    ));
+    await tester.pumpAndSettle();
+
     await tester.tap(find.text('Vehicle Detail'));
     await tester.pumpAndSettle();
 
     expect(find.byType(DashboardScreen), findsOneWidget);
+    expect(find.byType(VehicleScreen), findsNothing);
+  });
+
+  testWidgets('tapping Vehicle Detail navigates to VehicleScreen when a vehicle is assigned', (tester) async {
+    AuthSession.instance.token = 'fake-token';
+    final client = MockClient((request) async => http.Response(
+          jsonEncode({
+            'driver': {'id': '1', 'name': 'Jane Doe', 'phone': '+27821234567'},
+            'vehicle': {'id': '2', 'name': 'Toyota Quantum', 'registration': 'CA 123-456'},
+            'trip': null,
+          }),
+          200,
+        ));
+
+    await tester.pumpWidget(MaterialApp(
+      home: DashboardScreen(dashboardApi: DashboardApi(client: client)),
+    ));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Vehicle Detail'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(VehicleScreen), findsOneWidget);
   });
 }
