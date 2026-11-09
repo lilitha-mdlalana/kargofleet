@@ -38,6 +38,7 @@ var camelCaseJson = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamin
 builder.Services.AddSingleton<IJwtService>(new JwtService(jwtKeyBytes));
 builder.Services.AddScoped<IOtpGenerator, OtpGenerator>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ITripService, TripService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opts =>

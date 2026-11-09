@@ -10,6 +10,8 @@ public class Trip
     public string Origin { get; set; } = default!;
     public string Destination { get; set; } = default!;
     public string Status { get; set; } = "scheduled";
+    public DateTime? StartedAt { get; set; }
+    public DateTime? EndedAt { get; set; }
     public ICollection<Expense> Expenses { get; set; } = new List<Expense>();
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

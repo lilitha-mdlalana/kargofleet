@@ -46,7 +46,7 @@ public class DriverController : ControllerBase
                 : new DashboardVehicle(driver.Vehicle.Id, driver.Vehicle.Name, driver.Vehicle.Registration),
             trip is null
                 ? null
-                : new DashboardTrip(trip.Id, trip.Origin, trip.Destination, trip.Status));
+                : new DashboardTrip(trip.Id, trip.Origin, trip.Destination, trip.Status, trip.StartedAt, trip.EndedAt));
 
         return Ok(response);
     }
