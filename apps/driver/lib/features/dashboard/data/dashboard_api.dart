@@ -48,18 +48,24 @@ class DashboardTrip {
     required this.origin,
     required this.destination,
     required this.status,
+    this.startedAt,
+    this.endedAt,
   });
 
   final String id;
   final String origin;
   final String destination;
   final String status;
+  final DateTime? startedAt;
+  final DateTime? endedAt;
 
   factory DashboardTrip.fromJson(Map<String, dynamic> json) => DashboardTrip(
         id: json['id'] as String,
         origin: json['origin'] as String,
         destination: json['destination'] as String,
         status: json['status'] as String,
+        startedAt: json['startedAt'] == null ? null : DateTime.parse(json['startedAt'] as String),
+        endedAt: json['endedAt'] == null ? null : DateTime.parse(json['endedAt'] as String),
       );
 }
 
@@ -93,6 +99,28 @@ class DashboardApi {
       throw DashboardApiException(_extractMessage(response));
     }
     return DashboardData.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+  }
+
+  Future<DashboardTrip> startTrip({required String token, required String tripId}) async {
+    final response = await _client.post(
+      Uri.parse('${ApiConfig.baseUrl}/trips/$tripId/start'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+    if (response.statusCode != 200) {
+      throw DashboardApiException(_extractMessage(response));
+    }
+    return DashboardTrip.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+  }
+
+  Future<DashboardTrip> endTrip({required String token, required String tripId}) async {
+    final response = await _client.post(
+      Uri.parse('${ApiConfig.baseUrl}/trips/$tripId/end'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+    if (response.statusCode != 200) {
+      throw DashboardApiException(_extractMessage(response));
+    }
+    return DashboardTrip.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
   }
 
   String _extractMessage(http.Response response) {
